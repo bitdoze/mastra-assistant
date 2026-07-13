@@ -1,4 +1,5 @@
 import { Mastra } from "@mastra/core/mastra";
+import { MastraEditor } from "@mastra/editor";
 import { PinoLogger } from "@mastra/loggers";
 import { LibSQLStore } from "@mastra/libsql";
 import { DuckDBStore } from "@mastra/duckdb";
@@ -11,6 +12,7 @@ import {
 } from "@mastra/observability";
 import { assistant } from "./agents/assistant";
 import { workspace } from "./workspaces";
+import { newsDigest } from "./workflows/news-digest";
 
 // Turso / libSQL database URL. Defaults to local file for dev.
 // For production: set TURSO_DATABASE_URL to your Turso URL and
@@ -20,7 +22,9 @@ const tursoAuthToken = process.env.TURSO_AUTH_TOKEN || undefined;
 
 export const mastra = new Mastra({
   agents: { assistant },
+  workflows: { newsDigest },
   workspace,
+  editor: new MastraEditor(),
   storage: new MastraCompositeStore({
     id: "composite-storage",
     default: new LibSQLStore({

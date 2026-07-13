@@ -15,6 +15,8 @@ A lean [Mastra](https://mastra.ai) assistant with live-web research tools, works
 
 **No Discord, no social posting, no video pipelines.** Just research and coding assistance.
 
+**Plus a scheduled workflow** (`news-digest`) that runs daily at 7:30 AM, researches AI news, DevOps updates, self-hosting, trending GitHub repos, and Hacker News, then writes a markdown digest to `workspace/digests/`.
+
 ## Stack
 
 | Component | Technology |
@@ -23,6 +25,7 @@ A lean [Mastra](https://mastra.ai) assistant with live-web research tools, works
 | Storage | [LibSQL / Turso](https://turso.tech) (composite store: LibSQL for data + DuckDB for observability) |
 | Memory vectors | LibSQLVector (same database) |
 | Observability | Mastra Observability with DuckDB backend + optional Mastra Platform export |
+| Studio Editor | MastraEditor enabled (edit agents visually in Studio) |
 
 ## Quick start
 
@@ -79,21 +82,24 @@ Browse all 340+ models at [openrouter.ai/models](https://openrouter.ai/models).
 ```
 mastra-assistant/
 ├── src/mastra/
-│   ├── index.ts              # Mastra instance: storage, observability, agents
+│   ├── index.ts              # Mastra instance: storage, observability, editor, agents, workflows
 │   ├── agents/
 │   │   └── assistant.ts      # The assistant agent
 │   ├── tools/
 │   │   ├── tinyfish-*.ts     # Web search + fetch
 │   │   ├── youtube-*.ts      # YouTube metadata + transcript
 │   │   └── github-*.ts       # GitHub trending + repo details
+│   ├── workflows/
+│   │   └── news-digest.ts    # Daily news digest (scheduled, writes to workspace)
 │   ├── memory.ts             # Memory config (semantic recall + working memory)
 │   ├── workspaces.ts         # Sandboxed workspace config
 │   ├── paths.ts              # Path resolution
 │   └── shared.ts             # Model defaults + date helpers
 ├── workspace/
-│   └── skills/
-│       └── research/
-│           └── SKILL.md      # Research workflow skill
+│   ├── skills/
+│   │   └── research/
+│   │       └── SKILL.md      # Research workflow skill
+│   └── digests/              # Generated news digests land here
 ├── .env.example
 ├── package.json
 └── tsconfig.json
@@ -116,6 +122,16 @@ version: 1.0.0
 ```
 
 The agent picks up new skills on the next request.
+
+## News digest workflow
+
+The `news-digest` workflow runs automatically on a cron schedule (`30 7 * * *`, configurable via `AGENT_TIMEZONE`). It uses the assistant agent to:
+
+1. Search the web for AI news, DevOps updates, self-hosting, and Hacker News top stories
+2. Fetch trending GitHub repos from the last 7 days
+3. Write a formatted markdown digest to `workspace/digests/news-YYYY-MM-DD.md`
+
+You can also trigger it manually from Studio's Workflows tab.
 
 ## Using Turso for production
 
