@@ -8,7 +8,6 @@ import { MastraCompositeStore } from "@mastra/core/storage";
 import {
   Observability,
   MastraStorageExporter,
-  MastraPlatformExporter,
   SensitiveDataFilter,
 } from "@mastra/observability";
 import { assistant } from "./agents/assistant";
@@ -60,14 +59,6 @@ export const mastra = new Mastra({
         serviceName: "mastra-assistant",
         exporters: [
           new MastraStorageExporter(),
-          new MastraPlatformExporter({
-            ...(process.env.MASTRA_PLATFORM_ACCESS_TOKEN
-              ? { accessToken: process.env.MASTRA_PLATFORM_ACCESS_TOKEN }
-              : {}),
-            ...(process.env.MASTRA_PROJECT_ID
-              ? { projectId: process.env.MASTRA_PROJECT_ID }
-              : {}),
-          }),
         ],
         spanOutputProcessors: [
           new SensitiveDataFilter(),

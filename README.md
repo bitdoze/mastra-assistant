@@ -1,6 +1,6 @@
 # Mastra Assistant
 
-A lean [Mastra](https://mastra.ai) assistant with live-web research tools, workspace file/shell access, and persistent memory. Built for deployment on [Mastra Cloud](https://mastra.ai/docs/mastra-platform/overview).
+A lean [Mastra](https://mastra.ai) assistant with live-web research tools, workspace file/shell access, and persistent memory. Runs entirely on your own infrastructure with local databases.
 
 ## What's included
 
@@ -11,7 +11,7 @@ A lean [Mastra](https://mastra.ai) assistant with live-web research tools, works
 - **GitHub tools** - trending repo discovery (`github_trending_repos`) and repo detail + README fetch (`github_repo`)
 - **Research skill** - a reusable workflow (search then fetch) checked into `workspace/skills/research/`
 - **Workspace** - sandboxed file read/write/edit, grep, and shell command execution
-- **Memory** - last-messages recall, semantic recall via vector search, and a resource-scoped working memory scratchpad
+- **Memory** - last-messages recall and a resource-scoped working memory scratchpad
 
 **No Discord, no social posting, no video pipelines.** Just research and coding assistance.
 
@@ -24,7 +24,7 @@ A lean [Mastra](https://mastra.ai) assistant with live-web research tools, works
 | AI models | [OpenRouter](https://openrouter.ai) (hundreds of models, free tiers available) |
 | Storage | [LibSQL / Turso](https://turso.tech) (composite store: LibSQL for data + DuckDB for observability) |
 | Memory vectors | LibSQLVector (same database) |
-| Observability | Mastra Observability with DuckDB backend + optional Mastra Platform export |
+| Observability | Mastra Observability with DuckDB backend (local) |
 | Studio Editor | MastraEditor enabled (edit agents visually in Studio) |
 
 ## Quick start
@@ -91,7 +91,7 @@ mastra-assistant/
 │   │   └── github-*.ts       # GitHub trending + repo details
 │   ├── workflows/
 │   │   └── news-digest.ts    # Daily news digest (scheduled, writes to workspace)
-│   ├── memory.ts             # Memory config (semantic recall + working memory)
+│   ├── memory.ts             # Memory config (last-messages + working memory)
 │   ├── workspaces.ts         # Sandboxed workspace config
 │   ├── paths.ts              # Path resolution
 │   └── shared.ts             # Model defaults + date helpers
@@ -149,15 +149,16 @@ TURSO_DATABASE_URL=libsql://mastra-assistant-<your-org>.turso.io
 TURSO_AUTH_TOKEN=eyJhbGciOi...
 ```
 
-## Deploy to Mastra Cloud
+## Deploy
 
-1. Build the project:
+Build and run anywhere with Node.js:
 
 ```bash
 npm run build
+MASTRA_STUDIO_PATH=.mastra/output/studio node .mastra/output/index.mjs
 ```
 
-2. Deploy via the [Mastra Platform](https://projects.mastra.ai). See the [deployment docs](https://mastra.ai/docs/mastra-platform/overview) for details. Set all environment variables from `.env.example` in your cloud deployment settings.
+Set all environment variables from `.env.example` in your deployment environment. For Docker or other hosts, copy the build output from `.mastra/output/` and run it as a standard Node.js server.
 
 ## Scripts
 
