@@ -48,7 +48,7 @@ Edit `.env` and fill in at minimum:
 | `OPENROUTER_API_KEY` | Yes | Access LLM models via OpenRouter. Get a key at [openrouter.ai/keys](https://openrouter.ai/keys) |
 | `TINYFISH_API_KEY` | Yes | Web search and page fetch tools. Get a key at [tinyfish.com](https://tinyfish.com) |
 | `GITHUB_TOKEN` | Recommended | GitHub API access (raises rate limits from 60 to 5000 req/hr). Create at [github.com/settings/tokens](https://github.com/settings/tokens) |
-| `TURSO_DATABASE_URL` | No | LibSQL/Turso URL. Defaults to `file:./mastra.db` for local dev. Set to a Turso URL for production |
+| `TURSO_DATABASE_URL` | No | LibSQL/Turso URL. Use `file:./mastra.db` for local. Set to a Turso URL for remote access |
 | `TURSO_AUTH_TOKEN` | No | Turso auth token (omit for local file DB) |
 
 ### 3. Run the dev server
@@ -133,38 +133,134 @@ The `news-digest` workflow runs automatically on a cron schedule (`30 7 * * *`, 
 
 You can also trigger it manually from Studio's Workflows tab.
 
-## Using Turso for production
+## Deploy (self-hosted)
 
-1. Create a Turso database:
+This project runs entirely on your own machine. No cloud required. The `build` script bundles Studio into the output, so `npm run start` gives you both the API and Studio UI.
+
+### Build and start
+
+```bash
+npm run build
+npm run start
+```
+
+Studio is available at `http://localhost:4111`.
+
+### Run on macOS (Mac Mini, MacBook, etc.)
+
+**Install Node.js 22+** (if not already):
+
+```bash
+brew install node@22
+```
+
+**Clone, configure, build, and run:**
+
+```bash
+git clone https://github.com/bitdoze/mastra-assistant.git
+cd mastra-assistant
+npm install
+cp .env.example .env
+# Edit .env with your keys
+npm run build
+npm run start
+```
+
+**Keep it running 24/7 with pm2:**
+
+```bash
+npm install -g pm2
+pm2 start .mastra/output/index.mjs --name mastra-assistant --env .env
+pm2 save
+pm2 startup
+```
+
+**Optional - expose securely with Tailscale:**
+
+```bash
+brew install tailscale
+sudo tailscale up
+```
+
+Access Studio from any device on your tailnet at `http://your-mac-mini:4111`. No port forwarding needed.
+
+### Run on Linux (Ubuntu, Debian, etc.)
+
+**Install Node.js 22+:**
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+
+**Clone, configure, build, and run:**
+
+```bash
+git clone https://github.com/bitdoze/mastra-assistant.git
+cd mastra-assistant
+npm install
+cp .env.example .env
+# Edit .env with your keys
+npm run build
+npm run start
+```
+
+**Keep it running 24/7 with pm2:**
+
+```bash
+sudo npm install -g pm2
+pm2 start .mastra/output/index.mjs --name mastra-assistant
+pm2 save
+pm2 startup
+```
+
+**Optional - reverse proxy with Caddy (HTTPS):**
+
+```bash
+sudo apt install caddy
+```
+
+Create `/etc/caddy/Caddyfile`:
+
+```
+your-domain.com {
+    reverse_proxy localhost:4111
+}
+```
+
+```bash
+sudo systemctl restart caddy
+```
+
+Studio is now available at `https://your-domain.com` with automatic HTTPS.
+
+### Database options
+
+**Local SQLite (simplest, zero cost):**
+
+```bash
+TURSO_DATABASE_URL=file:./mastra.db
+```
+
+Works on both macOS and Linux. Back up the `mastra.db` file regularly.
+
+**Turso (remote, for multi-device access):**
 
 ```bash
 turso db create mastra-assistant
 turso db tokens create mastra-assistant
 ```
 
-2. Set the URL and token in `.env`:
-
 ```bash
 TURSO_DATABASE_URL=libsql://mastra-assistant-<your-org>.turso.io
 TURSO_AUTH_TOKEN=eyJhbGciOi...
 ```
-
-## Deploy
-
-Build and run anywhere with Node.js:
-
-```bash
-npm run build
-MASTRA_STUDIO_PATH=.mastra/output/studio node .mastra/output/index.mjs
-```
-
-Set all environment variables from `.env.example` in your deployment environment. For Docker or other hosts, copy the build output from `.mastra/output/` and run it as a standard Node.js server.
 
 ## Scripts
 
 | Command | Description |
 |---------|-------------|
 | `npm run dev` | Start Mastra Studio dev server on port 4111 |
-| `npm run build` | Build for production |
-| `npm run start` | Start the production server |
+| `npm run build` | Build for production (bundles Studio into output) |
+| `npm run start` | Start the production server with Studio |
 | `npm run typecheck` | Run TypeScript type checking |

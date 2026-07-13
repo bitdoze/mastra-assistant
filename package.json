@@ -1,15 +1,15 @@
 {
   "name": "mastra-assistant",
   "version": "1.0.0",
-  "description": "Trimmed Mastra assistant with TinyFish, YouTube, and GitHub tools. Memory with LibSQL/Turso + DuckDB. Deploys to Mastra Cloud.",
+  "description": "Lean Mastra assistant with TinyFish, YouTube, and GitHub tools. Memory with LibSQL/Turso + DuckDB. Self-hosted on macOS or Linux.",
   "type": "module",
   "engines": {
     "node": ">=22.13.0"
   },
   "scripts": {
     "dev": "mastra dev",
-    "build": "mastra build",
-    "start": "mastra start",
+    "build": "mastra build --studio",
+    "start": "MASTRA_STUDIO_PATH=.mastra/output/studio node .mastra/output/index.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
