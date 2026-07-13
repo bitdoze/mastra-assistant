@@ -2,8 +2,13 @@ import { Memory } from "@mastra/memory";
 import { LibSQLVector } from "@mastra/libsql";
 
 // LibSQL/Turso vector store for semantic recall. Uses the same database URL
-// as the main storage. Works with both local file: and remote Turso URLs.
-const tursoUrl = process.env.TURSO_DATABASE_URL ?? "file:./mastra.db";
+// as the main storage. TURSO_DATABASE_URL must be set (required for deploy).
+const tursoUrl = process.env.TURSO_DATABASE_URL;
+if (!tursoUrl) {
+  throw new Error(
+    "TURSO_DATABASE_URL is not set. For local dev use file:./mastra.db, for production use your Turso URL.",
+  );
+}
 const tursoAuthToken = process.env.TURSO_AUTH_TOKEN || undefined;
 
 const vectorStore = new LibSQLVector({

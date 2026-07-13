@@ -14,10 +14,15 @@ import { assistant } from "./agents/assistant";
 import { workspace } from "./workspaces";
 import { newsDigest } from "./workflows/news-digest";
 
-// Turso / libSQL database URL. Defaults to local file for dev.
-// For production: set TURSO_DATABASE_URL to your Turso URL and
-// TURSO_AUTH_TOKEN to your Turso token.
-const tursoUrl = process.env.TURSO_DATABASE_URL ?? "file:./mastra.db";
+// Turso / libSQL database URL (required). For local dev, set
+// TURSO_DATABASE_URL=file:./mastra.db in .env. For production, use your
+// Turso URL (libsql://...).
+const tursoUrl = process.env.TURSO_DATABASE_URL;
+if (!tursoUrl) {
+  throw new Error(
+    "TURSO_DATABASE_URL is not set. For local dev use file:./mastra.db, for production use your Turso URL.",
+  );
+}
 const tursoAuthToken = process.env.TURSO_AUTH_TOKEN || undefined;
 
 export const mastra = new Mastra({
@@ -46,7 +51,14 @@ export const mastra = new Mastra({
         serviceName: "mastra-assistant",
         exporters: [
           new MastraStorageExporter(),
-          new MastraPlatformExporter(),
+          new MastraPlatformExporter({
+            ...(process.env.MASTRA_PLATFORM_ACCESS_TOKEN
+              ? { accessToken: process.env.MASTRA_PLATFORM_ACCESS_TOKEN }
+              : {}),
+            ...(process.env.MASTRA_PROJECT_ID
+              ? { projectId: process.env.MASTRA_PROJECT_ID }
+              : {}),
+          }),
         ],
         spanOutputProcessors: [
           new SensitiveDataFilter(),
