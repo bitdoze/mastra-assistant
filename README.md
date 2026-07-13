@@ -11,7 +11,7 @@ A lean [Mastra](https://mastra.ai) assistant with live-web research tools, works
 - **GitHub tools** - trending repo discovery (`github_trending_repos`) and repo detail + README fetch (`github_repo`)
 - **Research skill** - a reusable workflow (search then fetch) checked into `workspace/skills/research/`
 - **Workspace** - sandboxed file read/write/edit, grep, and shell command execution
-- **Memory** - last-messages recall and a resource-scoped working memory scratchpad
+- **Memory** - last-messages recall, semantic recall via vector search (free local embeddings), and a resource-scoped working memory scratchpad
 
 **No Discord, no social posting, no video pipelines.** Just research and coding assistance.
 
@@ -91,7 +91,7 @@ mastra-assistant/
 │   │   └── github-*.ts       # GitHub trending + repo details
 │   ├── workflows/
 │   │   └── news-digest.ts    # Daily news digest (scheduled, writes to workspace)
-│   ├── memory.ts             # Memory config (last-messages + working memory)
+│   ├── memory.ts             # Memory config (semantic recall + working memory)
 │   ├── workspaces.ts         # Sandboxed workspace config
 │   ├── paths.ts              # Path resolution
 │   └── shared.ts             # Model defaults + date helpers
