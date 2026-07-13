@@ -14,14 +14,12 @@ import { assistant } from "./agents/assistant";
 import { workspace } from "./workspaces";
 import { newsDigest } from "./workflows/news-digest";
 
-// Turso / libSQL database URL (required). For local dev, set
-// TURSO_DATABASE_URL=file:./mastra.db in .env. For production, use your
-// Turso URL (libsql://...).
+// Turso / libSQL database URL (required). Set in .env before starting.
+// Local dev: set TURSO_DATABASE_URL to a local SQLite path.
+// Production: set it to your Turso URL (libsql://...).
 const tursoUrl = process.env.TURSO_DATABASE_URL;
 if (!tursoUrl) {
-  throw new Error(
-    "TURSO_DATABASE_URL is not set. For local dev use file:./mastra.db, for production use your Turso URL.",
-  );
+  throw new Error("TURSO_DATABASE_URL is not set. Add it to your .env file.");
 }
 const tursoAuthToken = process.env.TURSO_AUTH_TOKEN || undefined;
 

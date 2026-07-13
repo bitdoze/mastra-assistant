@@ -5,9 +5,7 @@ import { LibSQLVector } from "@mastra/libsql";
 // as the main storage. TURSO_DATABASE_URL must be set (required for deploy).
 const tursoUrl = process.env.TURSO_DATABASE_URL;
 if (!tursoUrl) {
-  throw new Error(
-    "TURSO_DATABASE_URL is not set. For local dev use file:./mastra.db, for production use your Turso URL.",
-  );
+  throw new Error("TURSO_DATABASE_URL is not set. Add it to your .env file.");
 }
 const tursoAuthToken = process.env.TURSO_AUTH_TOKEN || undefined;
 
