@@ -1,35 +1,13 @@
 import { Memory } from "@mastra/memory";
-import { LibSQLVector } from "@mastra/libsql";
 
-// LibSQL/Turso vector store for semantic recall. Uses the same database URL
-// as the main storage. TURSO_DATABASE_URL must be set (required for deploy).
-const tursoUrl = process.env.TURSO_DATABASE_URL;
-if (!tursoUrl) {
-  throw new Error("TURSO_DATABASE_URL is not set. Add it to your .env file.");
-}
-const tursoAuthToken = process.env.TURSO_AUTH_TOKEN || undefined;
-
-const vectorStore = new LibSQLVector({
-  id: "agent-vector",
-  url: tursoUrl,
-  ...(tursoAuthToken ? { authToken: tursoAuthToken } : {}),
-});
-
-// Working memory (resource-scoped Markdown scratchpad) + semantic recall
-// (vector search over past messages).
-//
-// - Storage: composite store (LibSQL + DuckDB observability) wired in
-//   index.ts; Memory inherits it.
-// - Vector store: LibSQLVector on the same Turso/libSQL database.
-// - Working memory: persists across all threads for a resource (user).
+// Memory with last-messages recall + working memory scratchpad.
+// Semantic recall is disabled because it requires an embedder (local ONNX
+// model or an embeddings API), which adds complexity for cloud deploys.
+// lastMessages alone is sufficient context for most conversations.
 export const memory = new Memory({
-  vector: vectorStore,
   options: {
     lastMessages: 20,
-    semanticRecall: {
-      topK: 3,
-      messageRange: 2,
-    },
+    semanticRecall: false,
     workingMemory: {
       enabled: true,
       scope: "resource",
