@@ -1,5 +1,4 @@
 import { Mastra } from "@mastra/core/mastra";
-import { defineAuth } from "@mastra/core/server";
 import { MastraEditor } from "@mastra/editor";
 import { PinoLogger } from "@mastra/loggers";
 import { LibSQLStore } from "@mastra/libsql";
@@ -21,23 +20,11 @@ if (!tursoUrl) {
 }
 const tursoAuthToken = process.env.TURSO_AUTH_TOKEN || undefined;
 
-// API key auth. Set MASTRA_API_KEY in .env. Clients pass it as
-// `Authorization: Bearer <key>` or `x-api-key: <key>`.
-const auth = defineAuth({
-  authenticateToken: async (token: string) => {
-    const apiKey = process.env.MASTRA_API_KEY;
-    if (!apiKey) return null;
-    if (token === apiKey) return { id: "default" };
-    return null;
-  },
-});
-
 export const mastra = new Mastra({
   agents: { assistant },
   workflows: { newsDigest },
   workspace,
   editor: new MastraEditor(),
-  server: { auth },
   storage: new MastraCompositeStore({
     id: "composite-storage",
     default: new LibSQLStore({
